@@ -33,7 +33,10 @@
 //! ```
 //! [__Complete examples__](https://github.com/carloskiki/leptos-icons/tree/main/examples) are available on github.
 
-use leptos::*;
+use leptos::html::HtmlElement;
+use leptos::prelude::*;
+use leptos::svg::*;
+use leptos::text_prop::TextProp;
 
 /// The Icon component.
 #[component]
@@ -58,56 +61,42 @@ where
 {
     let svg = move || {
         let icon = icon.get();
-        let mut svg = svg::svg();
-        if let Some(classes) = class.get() {
-            svg = svg.classes(classes.get());
-        }
-        let mut svg = match (style.get(), icon.style) {
-            (Some(a), Some(b)) => svg.attr("style", format!("{b} {}", a.get())),
-            (Some(a), None) => svg.attr("style", a.get()),
-            (None, Some(b)) => svg.attr("style", b),
-            (None, None) => svg,
-        };
-        if let Some(x) = icon.x {
-            svg = svg.attr("x", x);
-        }
-        if let Some(y) = icon.y {
-            svg = svg.attr("y", y);
-        }
-        // The style set by the user overrides the style set by the icon.
-        // We ignore the width and height attributes of the icon, even if the user hasn't specified any.
-        svg = svg.attr(
-            "width",
-            Attribute::String(match (width.get(), icon.width) {
-                (Some(a), _) => Oco::from(a.get()),
-                _ => Oco::from("1em"),
-            }),
-        );
-        svg = svg.attr(
-            "height",
-            Attribute::String(match (height.get(), icon.height) {
-                (Some(a), _) => Oco::from(a.get()),
-                _ => Oco::from("1em"),
-            }),
-        );
-        if let Some(view_box) = icon.view_box {
-            svg = svg.attr("viewBox", view_box);
-        }
-        if let Some(stroke_linecap) = icon.stroke_linecap {
-            svg = svg.attr("stroke-linecap", stroke_linecap);
-        }
-        if let Some(stroke_linejoin) = icon.stroke_linejoin {
-            svg = svg.attr("stroke-linejoin", stroke_linejoin);
-        }
-        if let Some(stroke_width) = icon.stroke_width {
-            svg = svg.attr("stroke-width", stroke_width);
-        }
-        if let Some(stroke) = icon.stroke {
-            svg = svg.attr("stroke", stroke);
-        }
-        svg = svg.attr("fill", icon.fill.unwrap_or("currentColor"));
-        svg = svg.attr("role", "graphics-symbol");
-        svg = svg.inner_html(icon.data);
+
+        let classes = class.get().map(|c| c.get().to_string());
+
+        let svg: HtmlElement<Svg, (), (), Dom> = leptos::svg::svg();
+        let svg = svg
+            .inner_html(icon.data)
+            .class(classes.unwrap_or("".to_string()))
+            .style(match (style.get(), icon.style) {
+                (Some(a), Some(b)) => format!("{b} {}", a.get()),
+                (Some(a), None) => a.get().to_string(),
+                (None, Some(b)) => b.to_string(),
+                (None, None) => "".to_string(),
+            })
+            .attr(
+                "width",
+                match (width.get(), icon.width) {
+                    (Some(a), _) => Oco::from(a.get()),
+                    _ => Oco::from("1em"),
+                },
+            )
+            .attr(
+                "height",
+                match (height.get(), icon.height) {
+                    (Some(a), _) => Oco::from(a.get()),
+                    _ => Oco::from("1em"),
+                },
+            )
+            .attr("x", icon.x)
+            .attr("y", icon.y)
+            .attr("height", "1rem")
+            .attr("viewBox", icon.view_box)
+            .attr("stroke_linecap", icon.stroke_linecap)
+            .attr("stroke_linejoin", icon.stroke_linejoin)
+            .attr("stroke", icon.stroke)
+            .attr("fill", icon.fill.unwrap_or("currentColor"))
+            .attr("role", "graphics-symbol");
         svg
     };
     IntoView::into_view(svg)
