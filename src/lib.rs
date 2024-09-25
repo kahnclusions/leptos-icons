@@ -64,7 +64,7 @@ where
 
         let classes = class.get().map(|c| c.get().to_string());
 
-        let svg: HtmlElement<Svg, (), (), Dom> = leptos::svg::svg();
+        let svg: HtmlElement<Svg, (), ()> = leptos::svg::svg();
         let svg = svg
             .inner_html(icon.data)
             .class(classes.unwrap_or("".to_string()))
